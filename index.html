@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>GENIUS教室工具箱</title>
+  <link rel="icon" type="image/jpeg" href="assets/logo-icon.jpg" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div id="viewport" class="viewport">
+    <div id="stage" class="stage" role="application" aria-label="GENIUS教室工具箱">
+
+      <!-- 柔和教室背景裝飾 -->
+      <div class="bg-decor" aria-hidden="true">
+        <div class="bg-blob blob-1"></div>
+        <div class="bg-blob blob-2"></div>
+        <div class="bg-blob blob-3"></div>
+        <div class="bg-dots"></div>
+      </div>
+
+      <!-- 慶祝彩帶畫布 -->
+      <canvas id="confetti-canvas" class="confetti-canvas" width="1280" height="720"></canvas>
+
+      <!-- ==================== 頂部導覽列 (62px) ==================== -->
+      <header class="topbar">
+        <button id="btn-home" class="brand-btn" type="button" title="回到首頁工具總覽">
+          <img class="brand-logo-img" src="assets/logo-icon.jpg" alt="GENIUS Logo" />
+          <span class="brand-text">
+            <strong>GENIUS教室工具箱</strong>
+          </span>
+        </button>
+
+        <nav class="quick-nav" aria-label="快速切換工具">
+          <button class="nav-pill" data-tool="spinner" type="button"><span>🎡</span>轉盤</button>
+          <button class="nav-pill" data-tool="seat" type="button"><span>🎟️</span>抽座號</button>
+          <button class="nav-pill" data-tool="group" type="button"><span>🧩</span>分組</button>
+          <button class="nav-pill" data-tool="stars" type="button"><span>⭐</span>集點</button>
+          <button class="nav-pill" data-tool="timer" type="button"><span>⏱️</span>計時</button>
+          <button class="nav-pill" data-tool="vote" type="button"><span>📊</span>投票</button>
+          <button class="nav-pill" data-tool="noise" type="button"><span>🚦</span>音量</button>
+          <button class="nav-pill" data-tool="dice" type="button"><span>🎲</span>骰子</button>
+        </nav>
+
+        <div class="topbar-actions">
+          <div class="live-clock" id="live-clock" title="現在時間">09:00</div>
+          <button id="btn-attention" class="util-btn util-bell" type="button" title="搖鈴提醒小朋友專心">
+            <span>🔔</span><span class="util-txt">注意</span>
+          </button>
+          <button id="btn-roster" class="util-btn util-roster" type="button" title="設定班級人數、姓名與請假">
+            <span>👧</span><span class="util-txt" id="roster-count-badge">20人</span>
+          </button>
+          <button id="btn-sound" class="util-btn" type="button" title="音效開關">
+            <span id="sound-icon">🔊</span>
+          </button>
+          <button id="btn-fullscreen" class="util-btn" type="button" title="切換全螢幕">
+            <span>⛶</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- ==================== 主工作區 (1280 x 632) ==================== -->
+      <main class="workspace">
+
+        <!-- ========== 首頁：工具箱總覽 ========== -->
+        <section id="view-home" class="tool-view active" aria-label="首頁工具選單">
+          <div class="home-hero">
+            <div class="home-welcome-wrap">
+              <img class="home-full-logo" src="assets/logo-full.jpg" alt="GENIUS" />
+              <div class="home-welcome">
+                <h1>GENIUS教室工具箱</h1>
+                <p>專為幼兒園電子白板設計・所有名單、轉盤主題與集點紀錄自動儲存！</p>
+              </div>
+            </div>
+            <div class="home-status-card" id="home-roster-card" role="button" tabindex="0">
+              <div class="status-icon">🏫</div>
+              <div class="status-info">
+                <div class="status-title" id="home-class-name">班級名單設定</div>
+                <div class="status-sub" id="home-class-summary">出席 20 / 20 人・點我設定名單</div>
+              </div>
+              <span class="status-arrow">⚙️</span>
+            </div>
+          </div>
+
+          <div class="tool-grid">
+            <button class="tool-card card-coral" data-open-tool="spinner" type="button">
+              <div class="card-emoji">🎡</div>
+              <div class="card-body">
+                <h3>幸運轉盤</h3>
+                <p>支援修改與新增自訂主題，小幫手、學習區或全班點名皆適用</p>
+              </div>
+              <span class="card-badge">自訂主題</span>
+            </button>
+
+            <button class="tool-card card-amber" data-open-tool="seat" type="button">
+              <div class="card-emoji">🎟️</div>
+              <div class="card-body">
+                <h3>抽座號點名</h3>
+                <p>單抽或多抽，支援不重複抽籤與請假座號自動略過</p>
+              </div>
+              <span class="card-badge">支援名單</span>
+            </button>
+
+            <button class="tool-card card-mint" data-open-tool="group" type="button">
+              <div class="card-emoji">🧩</div>
+              <div class="card-body">
+                <h3>快樂分組</h3>
+                <p>內建數字、動物、水果、顏色組別，固定版面一覽無遺且連動集點</p>
+              </div>
+              <span class="card-badge">連動集點</span>
+            </button>
+
+            <button class="tool-card card-gold" data-open-tool="stars" type="button">
+              <div class="card-emoji">⭐</div>
+              <div class="card-body">
+                <h3>星星集點板</h3>
+                <p>分組榮譽集點＋全班星星許願罐，與快樂分組即時同步</p>
+              </div>
+              <span class="card-badge">正向鼓勵</span>
+            </button>
+
+            <button class="tool-card card-sky" data-open-tool="timer" type="button">
+              <div class="card-emoji">⏱️</div>
+              <div class="card-body">
+                <h3>視覺計時器</h3>
+                <p>彩色倒數圓餅圖＋常用活動名稱，讓老師自由設定時間</p>
+              </div>
+              <span class="card-badge">彈性設時</span>
+            </button>
+
+            <button class="tool-card card-violet" data-open-tool="vote" type="button">
+              <div class="card-emoji">📊</div>
+              <div class="card-body">
+                <h3>快樂投票</h3>
+                <p>可新增與修改投票主題，預設隱藏票數，觸控投票後揭曉人氣王</p>
+              </div>
+              <span class="card-badge">觸控投票</span>
+            </button>
+
+            <button class="tool-card card-green" data-open-tool="noise" type="button">
+              <div class="card-emoji">🚦</div>
+              <div class="card-body">
+                <h3>音量紅綠燈</h3>
+                <p>老師一鍵切換三段音量燈號與動態波形，溫柔引導教室好聲音</p>
+              </div>
+              <span class="card-badge">安靜幫手</span>
+            </button>
+
+            <button class="tool-card card-peach" data-open-tool="dice" type="button">
+              <div class="card-emoji">🎲</div>
+              <div class="card-body">
+                <h3>趣味大骰子</h3>
+                <p>數字點數、顏色、注音符號、結合韻與英文字母大小寫</p>
+              </div>
+              <span class="card-badge">6種玩法</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- ========== 工具 1：幸運轉盤 ========== -->
+        <section id="view-spinner" class="tool-view" aria-label="幸運轉盤">
+          <div class="split-layout spinner-layout">
+            <div class="panel wheel-stage-panel">
+              <div class="wheel-theme-banner" id="wheel-current-theme-banner">🎡 目前主題：🧹 小幫手</div>
+              <div class="wheel-wrapper">
+                <div class="wheel-pointer" id="wheel-pointer" aria-hidden="true">▼</div>
+                <canvas id="wheel-canvas" width="510" height="510"></canvas>
+                <button id="btn-spin-center" class="wheel-center-btn" type="button">GO!</button>
+              </div>
+              <div class="wheel-bottom-bar">
+                <button id="btn-spin" class="btn-primary btn-lg btn-coral" type="button">🎡 開始轉動！</button>
+                <label class="toggle-chip">
+                  <input type="checkbox" id="chk-spin-remove" />
+                  <span>抽中後先隱藏</span>
+                </label>
+                <button id="btn-spin-restore" class="btn-soft" type="button" style="display:none;">↺ 恢復全部</button>
+              </div>
+            </div>
+
+            <div class="panel side-panel">
+              <div class="panel-header">
+                <h2>🎡 轉盤主題與選項</h2>
+                <div class="header-right-tools">
+                  <button id="btn-wheel-new-theme" class="btn-mini btn-mint-mini" type="button">＋新增主題</button>
+                  <span class="pill-count" id="wheel-count-label">6 項</span>
+                </div>
+              </div>
+
+              <div class="preset-chips" id="wheel-presets"></div>
+
+              <div class="theme-rename-row">
+                <span class="rename-label">主題名稱</span>
+                <input id="input-wheel-theme-name" class="text-input compact-input" type="text"
+                  placeholder="修改目前主題名稱..." maxlength="16" />
+                <button id="btn-wheel-del-theme" class="btn-mini btn-danger-mini" type="button" title="刪除此主題">🗑️
+                  刪除</button>
+              </div>
+
+              <div class="add-row">
+                <input id="input-wheel-item" class="text-input" type="text" placeholder="輸入新選項（例：擦桌子）..."
+                  maxlength="24" />
+                <button id="btn-wheel-add" class="btn-primary btn-mint" type="button">＋加入</button>
+              </div>
+
+              <div class="scroll-list" id="wheel-item-list"></div>
+
+              <div class="side-footer-note">
+                <span>💡 可直接修改主題名稱或按「＋新增主題」，所有變更會自動儲存！</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========== 工具 2：抽座號 ========== -->
+        <section id="view-seat" class="tool-view" aria-label="抽座號點名">
+          <div class="split-layout seat-layout">
+            <div class="panel seat-stage-panel">
+              <div class="seat-top-controls">
+                <div class="segmented-group">
+                  <span class="seg-label">每次抽出：</span>
+                  <button class="seg-btn active" data-draw-count="1" type="button">1人</button>
+                  <button class="seg-btn" data-draw-count="2" type="button">2人</button>
+                  <button class="seg-btn" data-draw-count="3" type="button">3人</button>
+                  <button class="seg-btn" data-draw-count="5" type="button">5人</button>
+                </div>
+                <div class="seat-top-right">
+                  <input id="input-seat-classname" class="text-input seat-class-input" type="text"
+                    placeholder="班級名稱（選填）" maxlength="16" value="" />
+                  <label class="toggle-chip">
+                    <input type="checkbox" id="chk-seat-unique" checked />
+                    <span>不重複抽</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="seat-reveal-stage" id="seat-reveal-stage">
+                <div class="seat-placeholder">
+                  <div class="big-mascot">🎁</div>
+                  <div class="placeholder-title">準備好抽幸運小朋友了嗎？</div>
+                  <div class="placeholder-sub">按下「開始抽籤」揭曉幸運座號！</div>
+                </div>
+              </div>
+
+              <div class="seat-action-bar">
+                <button id="btn-seat-draw" class="btn-primary btn-xl btn-amber" type="button">🎟️ 開始抽籤！</button>
+                <button id="btn-seat-reset" class="btn-soft btn-lg" type="button">↺ 重新洗牌</button>
+              </div>
+            </div>
+
+            <div class="panel side-panel">
+              <div class="panel-header">
+                <h2 id="seat-list-heading">📋 座號總覽</h2>
+                <span class="pill-count" id="seat-remaining-label">剩餘 20 人</span>
+              </div>
+              <div class="seat-legend">
+                <span><i class="dot dot-avail"></i>可抽</span>
+                <span><i class="dot dot-picked"></i>已抽中</span>
+                <span><i class="dot dot-absent"></i>請假/略過</span>
+              </div>
+              <div class="seat-mini-grid" id="seat-mini-grid"></div>
+              <div class="side-footer-note">
+                <span>💡 點擊上方任一座號可快速切換「請假 / 出席」狀態</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========== 工具 3：快樂分組 ========== -->
+        <section id="view-group" class="tool-view" aria-label="快樂分組">
+          <div class="panel full-panel group-panel">
+            <div class="group-toolbar">
+              <div class="group-controls-left">
+                <div class="segmented-group">
+                  <button class="seg-btn active" id="btn-group-mode-teams" type="button">按組數</button>
+                  <button class="seg-btn" id="btn-group-mode-size" type="button">按人數</button>
+                </div>
+
+                <div class="stepper">
+                  <button id="btn-group-minus" class="step-btn" type="button">－</button>
+                  <span id="group-param-display" class="step-val">分成 4 組</span>
+                  <button id="btn-group-plus" class="step-btn" type="button">＋</button>
+                </div>
+
+                <div class="group-cat-picker" id="group-category-chips">
+                  <span class="seg-label">類別：</span>
+                  <button class="chip-btn" data-group-cat="number" type="button">🔢 數字</button>
+                  <button class="chip-btn active" data-group-cat="animal" type="button">🐾 動物</button>
+                  <button class="chip-btn" data-group-cat="fruit" type="button">🍎 水果</button>
+                  <button class="chip-btn" data-group-cat="color" type="button">🎨 顏色</button>
+                </div>
+
+                <label class="toggle-chip compact-toggle">
+                  <input type="checkbox" id="chk-group-leader" checked />
+                  <span>⭐ 小隊長</span>
+                </label>
+              </div>
+
+              <div class="group-controls-right">
+                <button id="btn-group-shuffle" class="btn-primary btn-mint" type="button">🎲 隨機分組</button>
+                <button id="btn-group-to-stars" class="btn-primary btn-gold" type="button">⭐ 分組集點 →</button>
+              </div>
+            </div>
+
+            <div class="group-subhint-bar">
+              <span class="swap-hint" id="group-swap-hint">💡 點擊任兩位小朋友即可互換組別</span>
+              <span class="sync-pill">🔗 已即時同步至「星星集點板」</span>
+            </div>
+
+            <div class="groups-board" id="groups-board"></div>
+          </div>
+        </section>
+
+        <!-- ========== 工具 4：視覺計時器 ========== -->
+        <section id="view-timer" class="tool-view" aria-label="視覺計時器">
+          <div class="split-layout timer-layout">
+            <div class="panel timer-stage-panel">
+              <div class="timer-mode-row">
+                <div class="segmented-group">
+                  <button class="seg-btn active" id="btn-timer-countdown" type="button">⏳ 倒數計時</button>
+                  <button class="seg-btn" id="btn-timer-stopwatch" type="button">⏱️ 正數碼表</button>
+                </div>
+                <div class="timer-activity-badge" id="timer-activity-badge">
+                  <span class="timer-badge-icon" id="timer-badge-icon">🧹</span>
+                  <span class="timer-badge-text" id="timer-badge-text">收玩具</span>
+                </div>
+              </div>
+
+              <div class="timer-visual-box">
+                <svg class="timer-svg" viewBox="0 0 320 320">
+                  <circle class="timer-bg-ring" cx="160" cy="160" r="142"></circle>
+                  <path id="timer-pie" class="timer-pie" d=""></path>
+                  <circle id="timer-progress-ring" class="timer-progress-ring" cx="160" cy="160" r="142"
+                    stroke-dasharray="892.2" stroke-dashoffset="0"></circle>
+                </svg>
+                <div class="timer-center-readout">
+                  <div class="timer-mascot" id="timer-mascot">🐰</div>
+                  <div class="timer-digits" id="timer-digits">00:00</div>
+                  <div class="timer-subtext" id="timer-subtext">請先於右側設定時間</div>
+                </div>
+              </div>
+
+              <div class="timer-main-btns">
+                <button id="btn-timer-toggle" class="btn-primary btn-xl btn-sky" type="button">▶️ 開始計時</button>
+                <button id="btn-timer-reset" class="btn-soft btn-lg" type="button">↺ 重設</button>
+              </div>
+            </div>
+
+            <div class="panel side-panel">
+              <div class="panel-header">
+                <h2>⏰ 常用活動與自訂時間</h2>
+                <button id="btn-timer-edit-acts" class="btn-mini btn-mint-mini" type="button">✏️ 編輯活動</button>
+              </div>
+
+              <div class="section-mini-title">步驟 1：選擇活動名稱（可新增或修改）</div>
+              <div class="timer-preset-grid" id="timer-presets"></div>
+
+              <div class="timer-adjust-box">
+                <div class="section-mini-title">步驟 2：老師自行設定時間</div>
+                <div class="custom-time-inputs">
+                  <div class="time-unit-box">
+                    <button class="step-btn" id="btn-min-minus" type="button">－</button>
+                    <input id="input-timer-min" class="time-num-input" type="number" min="0" max="60" value="0" />
+                    <span class="time-unit-lbl">分</span>
+                    <button class="step-btn" id="btn-min-plus" type="button">＋</button>
+                  </div>
+                  <span class="time-colon">:</span>
+                  <div class="time-unit-box">
+                    <button class="step-btn" id="btn-sec-minus" type="button">－</button>
+                    <input id="input-timer-sec" class="time-num-input" type="number" min="0" max="59" value="0" />
+                    <span class="time-unit-lbl">秒</span>
+                    <button class="step-btn" id="btn-sec-plus" type="button">＋</button>
+                  </div>
+                </div>
+                <div class="adjust-btn-row">
+                  <button class="btn-soft" data-adj="10" type="button">+10秒</button>
+                  <button class="btn-soft" data-adj="30" type="button">+30秒</button>
+                  <button class="btn-soft" data-adj="60" type="button">+1分</button>
+                  <button class="btn-soft" data-adj="300" type="button">+5分</button>
+                  <button class="btn-soft" id="btn-timer-clear" type="button">歸零</button>
+                </div>
+              </div>
+
+              <div class="timer-sound-box">
+                <div class="section-mini-title">時間到提示音</div>
+                <div class="sound-choice-row" id="timer-sound-choices">
+                  <button class="chip-btn active" data-alarm="chime" type="button">🎐 溫柔風鈴</button>
+                  <button class="chip-btn" data-alarm="musicbox" type="button">🎵 音樂盒</button>
+                  <button class="chip-btn" data-alarm="bird" type="button">🐦 可愛鳥鳴</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========== 工具 5：快樂投票 ========== -->
+        <section id="view-vote" class="tool-view" aria-label="快樂投票">
+          <div class="panel full-panel vote-panel">
+            <div class="vote-header">
+              <div class="vote-title-group">
+                <span class="vote-icon">📊</span>
+                <input id="input-vote-topic" class="vote-topic-input" type="text" value="今天故事時間想聽哪一本？" maxlength="32"
+                  placeholder="輸入或修改投票主題..." />
+              </div>
+              <div class="vote-actions">
+                <button id="btn-vote-new-topic" class="btn-mini btn-mint-mini" type="button">＋新增主題</button>
+                <button id="btn-vote-del-topic" class="btn-mini btn-danger-mini" type="button"
+                  title="刪除此主題">🗑️</button>
+                <button id="btn-vote-blind" class="btn-soft active-toggle" type="button">👁️ 顯示票數</button>
+                <button id="btn-vote-edit" class="btn-soft" type="button">✏️ 編輯選項</button>
+                <button id="btn-vote-crown" class="btn-primary btn-amber" type="button">👑 揭曉結果</button>
+                <button id="btn-vote-reset" class="btn-soft" type="button">↺ 歸零</button>
+              </div>
+            </div>
+
+            <div class="vote-theme-bar">
+              <span class="seg-label">主題列表：</span>
+              <div class="vote-theme-chips" id="vote-theme-chips"></div>
+            </div>
+
+            <div class="vote-board" id="vote-board"></div>
+
+            <div class="vote-footer">
+              <span id="vote-total-text">總投票數：0 票（票數隱藏中）</span>
+              <span>👆 請小朋友直接點擊喜歡的卡片投下一票喔！（點「顯示票數」或「揭曉結果」即可公布）</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========== 工具 6：音量紅綠燈 ========== -->
+        <section id="view-noise" class="tool-view" aria-label="音量紅綠燈">
+          <div class="split-layout noise-layout">
+            <div class="panel noise-light-panel">
+              <div class="traffic-housing">
+                <button class="light-bulb bulb-red" id="bulb-red" data-level="red" type="button"
+                  aria-label="紅燈太大聲"></button>
+                <button class="light-bulb bulb-yellow" id="bulb-yellow" data-level="yellow" type="button"
+                  aria-label="黃燈小小聲"></button>
+                <button class="light-bulb bulb-green active" id="bulb-green" data-level="green" type="button"
+                  aria-label="綠燈好聲音"></button>
+              </div>
+              <div class="noise-status-display" id="noise-status-display">
+                <div class="noise-emoji" id="noise-emoji">🌿</div>
+                <h2 id="noise-headline">輕聲細語・好棒喔！</h2>
+                <p id="noise-desc">現在的聲音就像微風一樣溫柔，大家都能專心聽故事～</p>
+              </div>
+            </div>
+
+            <div class="panel side-panel noise-control-panel">
+              <div class="panel-header">
+                <h2>🚦 教室好聲音控制</h2>
+                <span class="pill-count" id="noise-db-text">🌿 溫柔微風</span>
+              </div>
+
+              <div class="noise-meter-box">
+                <div class="section-mini-title">
+                  <span>動態音量波形</span>
+                  <span id="noise-wave-hint">平穩柔和波動中</span>
+                </div>
+                <div class="meter-bars" id="noise-meter-bars"></div>
+              </div>
+
+              <div class="section-mini-title" style="margin-top:4px;">點選切換教室音量模式</div>
+              <div class="noise-quick-cards">
+                <button class="noise-quick-btn nq-green active-level" data-level="green" type="button">
+                  <span>🟢</span>
+                  <div><strong>綠燈・安靜閱讀</strong><small>說話像微風一樣輕柔</small></div>
+                </button>
+                <button class="noise-quick-btn nq-yellow" data-level="yellow" type="button">
+                  <span>🟡</span>
+                  <div><strong>黃燈・小組討論</strong><small>只有隔壁同學聽得到</small></div>
+                </button>
+                <button class="noise-quick-btn nq-red" data-level="red" type="button">
+                  <span>🔴</span>
+                  <div><strong>紅燈・聲音太大囉</strong><small>深呼吸，一起回到好聲音</small></div>
+                </button>
+              </div>
+
+              <div class="side-footer-note">
+                <span>💡 也可以直接點擊左側的紅、黃、綠大燈泡快速切換喔！</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========== 工具 7：星星集點板 ========== -->
+        <section id="view-stars" class="tool-view" aria-label="星星集點板">
+          <div class="panel full-panel stars-panel">
+            <div class="stars-topbar">
+              <div class="segmented-group">
+                <button class="seg-btn active" id="btn-stars-tab-teams" type="button">🏆 分組榮譽集點</button>
+                <button class="seg-btn" id="btn-stars-tab-jar" type="button">🌟 全班星星許願罐</button>
+              </div>
+
+              <div class="stars-jar-controls" id="stars-jar-controls" style="display:none;">
+                <span class="seg-label">目標星星數：</span>
+                <button class="chip-btn" data-jar-goal="10" type="button">10顆</button>
+                <button class="chip-btn active" data-jar-goal="20" type="button">20顆</button>
+                <button class="chip-btn" data-jar-goal="30" type="button">30顆</button>
+                <button id="btn-jar-reset" class="btn-soft" type="button">↺ 清空罐子</button>
+              </div>
+
+              <div class="stars-team-controls" id="stars-team-controls">
+                <span class="sync-pill" id="stars-sync-badge">🔗 已連動「快樂分組」目前組別</span>
+                <button id="btn-stars-back-group" class="btn-soft" type="button">🧩 調整分組</button>
+                <button id="btn-teams-reset" class="btn-soft" type="button">↺ 分數歸零</button>
+              </div>
+            </div>
+
+            <!-- 子頁 A：全班許願罐 -->
+            <div class="stars-subview" id="subview-jar">
+              <div class="jar-stage">
+                <div class="jar-container">
+                  <div class="jar-lid"></div>
+                  <div class="jar-neck"></div>
+                  <div class="jar-body" id="jar-body">
+                    <div class="jar-fill-level" id="jar-fill-level"></div>
+                    <div class="jar-stars-field" id="jar-stars-field"></div>
+                  </div>
+                </div>
+                <div class="jar-side-panel">
+                  <div class="jar-progress-card">
+                    <div class="jar-big-count"><span id="jar-current-num">0</span> <small>/ <span
+                          id="jar-goal-num">20</span> ⭐</small></div>
+                    <div class="jar-progress-track">
+                      <div class="jar-progress-bar" id="jar-progress-bar"></div>
+                    </div>
+                    <div class="jar-encourage" id="jar-encourage">全班一起收集閃亮亮的星星吧！</div>
+                  </div>
+                  <div class="jar-action-grid">
+                    <button id="btn-jar-add1" class="btn-primary btn-xl btn-gold" type="button">⭐ ＋1 顆星</button>
+                    <button id="btn-jar-add5" class="btn-primary btn-lg btn-amber" type="button">🌟 ＋5 顆星</button>
+                    <button id="btn-jar-sub1" class="btn-soft btn-lg" type="button">－1 顆星</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 子頁 B：分組榮譽集點（預設顯示，與快樂分組即時連動） -->
+            <div class="stars-subview active" id="subview-teams">
+              <div class="team-score-grid" id="team-score-grid"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========== 工具 8：趣味大骰子 ========== -->
+        <section id="view-dice" class="tool-view" aria-label="趣味大骰子">
+          <div class="panel full-panel dice-panel">
+            <div class="dice-topbar">
+              <div class="preset-chips dice-chips" id="dice-mode-chips">
+                <button class="chip-btn active" data-dice-mode="number" type="button">🔢 數字點數</button>
+                <button class="chip-btn" data-dice-mode="color" type="button">🎨 彩虹顏色</button>
+                <button class="chip-btn" data-dice-mode="zhuyin" type="button">注音符號</button>
+                <button class="chip-btn" data-dice-mode="compound" type="button">結合韻</button>
+                <button class="chip-btn" data-dice-mode="upper" type="button">🔤 英文大寫</button>
+                <button class="chip-btn" data-dice-mode="lower" type="button">🔡 英文小寫</button>
+              </div>
+            </div>
+
+            <div class="dice-arena" id="dice-arena">
+              <div class="dice-stage-row" id="dice-stage-row"></div>
+              <div class="dice-result-banner" id="dice-result-banner">點擊骰子或下方按鈕，一起擲出大骰子吧！</div>
+            </div>
+
+            <div class="dice-bottom-bar">
+              <button id="btn-dice-roll" class="btn-primary btn-xl btn-peach" type="button">🎲 擲骰子！</button>
+            </div>
+          </div>
+        </section>
+
+      </main>
+
+      <!-- ==================== 底部版權列 (26px) ==================== -->
+      <footer class="stage-footer">
+        <span>© 傑尼爾教育文化事業集團 版權所有</span>
+      </footer>
+
+      <!-- ==================== 彈窗：班級名單設定 ==================== -->
+      <div id="modal-roster" class="modal-backdrop" aria-hidden="true">
+        <div class="modal-card modal-lg">
+          <div class="modal-header">
+            <h3>🏫 班級與座號名單設定</h3>
+            <button class="modal-close" data-close-modal="modal-roster" type="button">✕</button>
+          </div>
+          <div class="modal-body roster-modal-body">
+            <div class="roster-top-form">
+              <label class="field-inline">
+                <span>班級名稱</span>
+                <input id="input-class-name" class="text-input" type="text" value="" placeholder="選填（預設空白）"
+                  maxlength="16" />
+              </label>
+              <label class="field-inline">
+                <span>班級總人數</span>
+                <div class="stepper">
+                  <button id="btn-roster-minus" class="step-btn" type="button">－</button>
+                  <span id="roster-size-val" class="step-val">20 人</span>
+                  <button id="btn-roster-plus" class="step-btn" type="button">＋</button>
+                </div>
+              </label>
+              <button id="btn-roster-all-present" class="btn-soft" type="button">✅ 全部出席</button>
+              <button id="btn-roster-clear-names" class="btn-soft" type="button">🧹 清除姓名（僅顯示座號）</button>
+            </div>
+
+            <div class="roster-hint">💡 老師可以留空姓名只顯示座號，或輸入小朋友名字；點擊右側「出席/請假」可讓抽座號與分組自動略過請假的小朋友。</div>
+
+            <div class="roster-editor-grid" id="roster-editor-grid"></div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn-primary btn-mint" id="btn-roster-save" type="button">💾 儲存並套用</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 彈窗：投票選項編輯 ==================== -->
+      <div id="modal-vote-edit" class="modal-backdrop" aria-hidden="true">
+        <div class="modal-card modal-md">
+          <div class="modal-header">
+            <h3>✏️ 編輯投票選項</h3>
+            <button class="modal-close" data-close-modal="modal-vote-edit" type="button">✕</button>
+          </div>
+          <div class="modal-body">
+            <div class="picker-guide-hint">💡 點選左側圖案按鈕後，即可直接從下方點選預設圖案替換！</div>
+            <div id="vote-edit-list" class="vote-edit-list"></div>
+            <button id="btn-vote-add-opt" class="btn-soft" type="button" style="margin-top:10px;width:100%;">＋
+              新增一個投票選項（最多 6 項）</button>
+            <div class="emoji-picker-box">
+              <div class="section-mini-title">
+                <span>🎨 預設圖案選擇盤</span>
+                <span id="vote-picker-target-lbl">目前選擇：第 1 項</span>
+              </div>
+              <div class="emoji-picker-grid" id="vote-emoji-picker"></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn-primary btn-violet" id="btn-vote-save-edit" type="button">💾 完成編輯</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 彈窗：計時活動名稱編輯 ==================== -->
+      <div id="modal-timer-edit" class="modal-backdrop" aria-hidden="true">
+        <div class="modal-card modal-md">
+          <div class="modal-header">
+            <h3>✏️ 新增或修改計時活動</h3>
+            <button class="modal-close" data-close-modal="modal-timer-edit" type="button">✕</button>
+          </div>
+          <div class="modal-body">
+            <div class="picker-guide-hint">💡 點選左側圖案按鈕後，即可直接從下方點選預設圖案替換！</div>
+            <div id="timer-edit-list" class="vote-edit-list"></div>
+            <button id="btn-timer-add-act" class="btn-soft" type="button" style="margin-top:10px;width:100%;">＋
+              新增一個活動（最多 9 項）</button>
+            <div class="emoji-picker-box">
+              <div class="section-mini-title">
+                <span>🎨 預設圖案選擇盤</span>
+                <span id="timer-picker-target-lbl">目前選擇：第 1 項</span>
+              </div>
+              <div class="emoji-picker-grid" id="timer-emoji-picker"></div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn-primary btn-sky" id="btn-timer-save-edit" type="button">💾 儲存活動</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== 彈窗：大結果慶祝 ==================== -->
+      <div id="modal-celebrate" class="modal-backdrop" aria-hidden="true">
+        <div class="modal-card modal-celebrate-card">
+          <div class="celebrate-sparkle">✨🎉✨</div>
+          <div class="celebrate-badge" id="celebrate-badge">恭喜抽中</div>
+          <div class="celebrate-main" id="celebrate-main">07 號</div>
+          <div class="celebrate-sub" id="celebrate-sub">太棒了！大家拍拍手！</div>
+          <button class="btn-primary btn-lg btn-coral" data-close-modal="modal-celebrate" type="button">好棒！知道了
+            👏</button>
+        </div>
+      </div>
+
+      <!-- ==================== 覆蓋層：一鍵搖鈴專注提醒 ==================== -->
+      <div id="overlay-attention" class="attention-overlay" aria-hidden="true">
+        <div class="attention-card">
+          <div class="attention-bell-anim">🔔</div>
+          <h2>小耳朵打開！眼睛看老師！</h2>
+          <p>一、二、三，木頭人～ 大家都好棒喔！👀✨</p>
+          <button id="btn-close-attention" class="btn-primary btn-lg btn-amber" type="button">我們準備好囉！</button>
+        </div>
+      </div>
+
+      <!-- Toast 輕提示 -->
+      <div id="toast" class="toast" aria-live="polite"></div>
+
+    </div>
+  </div>
+
+  <script src="audio.js"></script>
+  <script src="core.js"></script>
+  <script src="tools-main.js"></script>
+  <script src="tools-extra.js"></script>
+</body>
+
+</html>
